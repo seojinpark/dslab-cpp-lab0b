@@ -75,6 +75,14 @@ void parse_args(int argc, char** argv) {
 
 int main(int argc, char** argv) {
   parse_args(argc, argv);
+  // DDB: initialization
+  if (ddb) {
+    auto cfg = DDB::Config::get_default(ddb_host_ip)
+                   .with_alias(ddb_proc_alias)
+                   .with_hash(ddb_proc_alias);
+    auto connector = DDB::DDBConnector(cfg);
+    connector.init();
+  }
   
   // Initialize logger infrastructure
   accumulator::utils::init_logger();
@@ -88,15 +96,6 @@ int main(int argc, char** argv) {
 
   // Create logger instance for this service
   logger = accumulator::utils::logger::get_logger(service_name);
-
-  // DDB: initialization
-  if (ddb) {
-    auto cfg = DDB::Config::get_default(ddb_host_ip)
-                   .with_alias(ddb_proc_alias)
-                   .with_hash(ddb_proc_alias);
-    auto connector = DDB::DDBConnector(cfg);
-    connector.init();
-  }
 
 #ifdef TRACING
   grpc::ChannelArguments args;
@@ -118,11 +117,6 @@ int main(int argc, char** argv) {
     client.Shutdown();
     std::cout << "Shutdown requested." << std::endl;
   } else {
-    // TODO (Milestone3): modify below to use just one RPC.
-    /*
-    int wc = client.AddWordCount(inputText);
-    int wcSum = client.GetAllWordCount();
-    */
     auto [wc, wcSum] = client.AddWordCount(inputText);
     std::cout << "Word count: " << wc << std::endl
               << "Sum of all word counts: " << wcSum << std::endl;

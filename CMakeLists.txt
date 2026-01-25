@@ -108,11 +108,11 @@ endif()
 
 # Linking info for runtime.
 add_executable(wcClient
-  "src/clientMain.cpp" "src/rpcClient.cpp")
+  "src/clientMain.cpp" "src/rpcClient.cpp" "src/rpcTracker.cpp")
 target_link_libraries(wcClient ${COMMON_LIBS})
 
 add_executable(wcServer
-  "src/serverMain.cpp" "src/rpcService.cpp")
+  "src/serverMain.cpp" "src/rpcService.cpp" "src/unackedRpcResults.cpp")
 target_link_libraries(wcServer ${COMMON_LIBS})
 
 set_property(TARGET wcClient wcServer PROPERTY CXX_STANDARD 20)

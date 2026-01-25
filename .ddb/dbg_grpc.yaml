@@ -1,6 +1,10 @@
 ---
 Framework: grpc
 
+PrerunGdbCommands:
+- name: "pass SIGTERM to program"
+  command: "handle SIGTERM pass nostop"
+
 ServiceDiscovery:
   Broker:
     hostname: 127.0.0.1
@@ -9,3 +13,4 @@ ServiceDiscovery:
 
 Conf:
   on_exit: kill
+  auto_shutdown: false

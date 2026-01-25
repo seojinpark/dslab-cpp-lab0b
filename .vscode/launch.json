@@ -5,7 +5,7 @@
 		{
 			"type": "ddb",
 			"request": "launch",
-			"name": "Attach DDB",
+			"name": "Start DDB",
 			"ddbpath": "${env:HOME}/.cargo/bin/ddb",
 			"configFilePath":"${workspaceFolder}/.ddb/dbg_grpc.yaml",
 			"debugger_args": [ "--console-log", "--console-level", "error", "--file-level", "info" ],

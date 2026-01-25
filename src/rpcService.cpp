@@ -15,6 +15,7 @@
 using grpc::Server;
 using grpc::ServerContext;
 using grpc::Status;
+using grpc::StatusCode;
 
 std::unique_ptr<std::thread> shutdown_thread;
 
@@ -61,9 +62,6 @@ AccumulatorServiceImpl::AddWordCount(ServerContext* context,
   this->logger->info("Example log attached to the span.");
 #endif
 
-  // TODO (Milestone1): implement
-  // You may use AccumulatorServiceImpl::countWords().
-  // Use wcSum variable to keep track the accumulated word counts.
   int newly_added = countWords(request->text());
   this->wcSum += newly_added;
   reply->set_word_count(newly_added);
@@ -91,18 +89,35 @@ AccumulatorServiceImpl::GetAllWordCount(ServerContext* context,
   return Status::OK;
 }
 
-// TODO (Milestone2): implement ResetCounter handler
 Status
 AccumulatorServiceImpl::ResetCounter(ServerContext* context,
     const Empty* request,
     StandardReply* reply) {
   UNUSED(context);
   UNUSED(request);
-  
+
+  uint64_t clientId = request->clientid();
+  uint64_t rpcId = request->rpcid();
+  uint64_t ackId = request->ackid();
+  UnackedRpcHandle rh(&unackedRpcResults, context->deadline(),
+      clientId, rpcId, ackId);
+  if (rh.isDuplicate()) {
+    // Duplicate RPC, return the saved response.
+    // TODO (Milestone 3): update the following line to parse the serialized reply.
+    reply->set_message(rh.savedResponse());
+    return Status::OK;
+  }
+
   std::string replyMsg("Reset Counter invoked.");
   reply->set_message(replyMsg);
-
   this->wcSum = 0;
+
+  // TODO: remove this sleep after Milestone 3.
+  // Sleep for 5 seconds to simulate a long processing time.
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+
+  // TODO (Milestone 3): update the following line to save the serialized reply.
+  rh.recordCompletion(replyMsg);
   return Status::OK;
 }
 

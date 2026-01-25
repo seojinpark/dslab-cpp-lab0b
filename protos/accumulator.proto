@@ -10,7 +10,11 @@ service Accumulator {
   rpc Shutdown(Empty) returns (StandardReply) {}
 }
 
-message Empty {}
+message Empty {
+  uint64 clientid = 1;
+  uint64 rpcid = 2;
+  uint64 ackid = 3;
+}
 
 message AddWordCountRequest {
   string text = 1;

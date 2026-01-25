@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include "unackedRpcResults.h"
 
 #include <grpcpp/grpcpp.h>
 #include "accumulator.grpc.pb.h"
@@ -26,8 +27,9 @@ extern std::unique_ptr<std::thread> shutdown_thread;
 class AccumulatorServiceImpl final : public Accumulator::Service {
  public:
   AccumulatorServiceImpl()
-    : Accumulator::Service(),
-      logger(accumulator::utils::logger::get_logger("AccumulatorService")) {}
+    : Accumulator::Service()
+    , unackedRpcResults()
+    , logger(accumulator::utils::logger::get_logger("AccumulatorService")) {}
 
   void setGrpcServer(grpc::Server* serverPtr);
  
@@ -52,6 +54,9 @@ class AccumulatorServiceImpl final : public Accumulator::Service {
 
   // Counter for accumulating all word counts.
   int wcSum = 0;
+
+  // UnackedRpcResults instance to keep track of unacknowledged RPCs.
+  UnackedRpcResults unackedRpcResults;
 
   std::unique_ptr<accumulator::utils::logger> logger;
 };

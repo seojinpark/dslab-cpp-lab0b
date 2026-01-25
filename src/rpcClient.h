@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <random>
+#include "rpcTracker.h"
 
 #include <grpcpp/grpcpp.h>
 #include "accumulator.grpc.pb.h"
@@ -15,9 +17,7 @@ using grpc::Status;
  */
 class RpcClient {
  public:
-  RpcClient(std::shared_ptr<grpc::ChannelInterface> channel)
-    : stub_(Accumulator::NewStub(channel)) {}
-  
+  RpcClient(std::shared_ptr<grpc::ChannelInterface> channel);  
   std::pair<int, int> AddWordCount(std::string text);
   int GetAllWordCount();
   std::string ResetCounter();
@@ -25,6 +25,8 @@ class RpcClient {
 
  private:
   std::unique_ptr<Accumulator::Stub> stub_;
+  RpcTracker rpcTracker;
+  uint64_t clientId;
 };
 
 #endif // RPC_CLIENT_H
