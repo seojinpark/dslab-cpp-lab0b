@@ -116,7 +116,7 @@ UnackedRpcHandle::isDuplicate()
 bool
 UnackedRpcHandle::isInProgress()
 {
-    return respPtr == nullptr;
+    return (respPtr == nullptr) || respPtr->empty();
 }
 
 /**
