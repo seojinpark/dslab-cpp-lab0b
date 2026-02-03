@@ -139,8 +139,7 @@ void
 UnackedRpcHandle::recordCompletion(std::string& response)
 {
     // Record the saved RpcResult pointer.
-    rpcResults->recordCompletion(clientId, rpcId, response);
-    // respPtr = &response; // TODO fix. Must get from UnackedRpcResults.
+    respPtr = rpcResults->recordCompletion(clientId, rpcId, response);
 }
 
 /**
@@ -274,7 +273,7 @@ UnackedRpcResults::checkDuplicate(std::chrono::system_clock::time_point deadline
  *      If true, no-op if RPC is already acked instead of assertion failure.
  *      This flag is used to prevent error during relocation by log cleaner.
  */
-void
+std::string*
 UnackedRpcResults::recordCompletion(uint64_t clientId,
                                       uint64_t rpcId,
                                       std::string& response,
@@ -283,22 +282,25 @@ UnackedRpcResults::recordCompletion(uint64_t clientId,
     Lock lock(mutex);
     Client* client = getClientRecord(clientId, lock);
     if (ignoreIfAcked && client == NULL) {
-        return;
+        return nullptr;
     }
 
     assert(client != NULL);
 
     if (ignoreIfAcked && client->maxAckId >= rpcId) {
-        return;
+        return nullptr;
     }
     assert(client->maxRpcId >= rpcId);
 
+    std::string* resultPtr = nullptr;
     // If a client cancels an RPC, the current RPC may have been acked while
     // being processed. In this case, we can just delete the completion record.
     if (client->maxAckId < rpcId) {
         client->updateResult(rpcId, response);
+        resultPtr = client->result(rpcId);
     }
     client->numRpcsInProgress--;
+    return resultPtr;
 }
 
 /**

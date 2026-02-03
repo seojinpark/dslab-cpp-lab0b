@@ -40,7 +40,7 @@ class UnackedRpcResults {
                         uint64_t rpcId,
                         uint64_t ackId,
                         std::string** respPtrOut);
-    void recordCompletion(uint64_t clientId,
+    std::string* recordCompletion(uint64_t clientId,
                           uint64_t rpcId,
                           std::string& response,
                           bool ignoreIfAcked = false);
